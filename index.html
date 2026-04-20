@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎈 لعبة الصديق الصغير - مواقف مصورة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <div id="soundStatus" class="sound-status">🎵 جاري تحميل الأصوات...</div>
+    <div id="comboCounter" class="combo-counter hidden no-print">🔥 <span id="comboCount">0</span> إجابات متتالية</div>
+
+    <header class="bg-white/90 shadow-xl sticky top-0 z-20 no-print">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="text-4xl animate-bounce">🎮</div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-purple-700">🎈 لعبة الصديق الصغير</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-full px-4 py-2 shadow-lg">
+                        <span class="text-lg font-bold text-purple-600">⭐ <span id="totalScore">0</span></span>
+                    </div>
+                    <div id="levelBadge" class="level-badge level-bronze text-sm px-3 py-1">🥉 برونزي</div>
+                    <button id="soundToggleBtn" class="bg-white rounded-full p-2 shadow-lg hover:scale-110 transition">🔊</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="text-center fade-in">
+            <div class="scenario-card p-8 max-w-3xl mx-auto">
+                <div class="character mx-auto mb-6"><div class="text-6xl">👋</div></div>
+                <h2 class="text-4xl font-bold text-purple-700 mb-4">مرحباً بك يا بطل! 🎈</h2>
+                <p class="text-xl text-gray-700 mb-6">تعال نتعلم معاً كيف نكون أصدقاء طيبين في البيت والمدرسة والشارع!</p>
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-8">
+                    <h3 class="text-xl font-bold text-orange-700 mb-4">🗺️ رحلتك التعليمية</h3>
+                    <div class="text-right text-gray-700 space-y-2 text-lg">
+                        <p>🏠 • البيت: تعلم كيف تتعامل مع عائلتك</p>
+                        <p>🏫 • المدرسة: تعلم كيف تتعامل مع معلميك وزملائك</p>
+                        <p>🛣️ • الشارع: تعلم كيف تتعامل مع الآخرين في المجتمع</p>
+                        <p>🕌 • المسجد: تعلم أحكام الصلاة وآداب المسجد</p>
+                        <p>⭐ • أكمل كل منطقة لتحصل على النجوم</p>
+                    </div>
+                </div>
+                <button onclick="showNameScreen()" class="answer-box text-xl font-bold px-8 py-4" style="display: inline-block; width: auto;">🚀 هيا نبدأ المغامرة!</button>
+            </div>
+        </div>
+
+        <!-- Name Screen -->
+        <div id="nameScreen" class="hidden text-center fade-in">
+            <div class="scenario-card p-8 max-w-md mx-auto">
+                <div class="character mx-auto mb-6"><div class="text-6xl">🤔</div></div>
+                <h2 class="text-2xl font-bold text-purple-700 mb-4">ما اسمك يا بطل؟</h2>
+                <input type="text" id="kidName" class="w-full p-4 border-2 border-purple-200 rounded-2xl text-center text-xl mb-6 focus:border-purple-500 focus:outline-none" placeholder="اكتب اسمك هنا">
+                <button onclick="saveNameAndStart()" class="answer-box w-full text-xl py-3">🎮 ابدأ اللعبة</button>
+            </div>
+        </div>
+
+        <!-- Map Screen (نسخة واحدة فقط) -->
+        <div id="mapScreen" class="hidden fade-in">
+            <div class="scenario-card p-8 max-w-5xl mx-auto">
+                <h2 class="text-3xl font-bold text-purple-700 text-center mb-6">🗺️ اختر منطقتك</h2>
+                <p class="text-center text-gray-600 mb-8">✨ أكمل كل منطقة لتفتح التالية ✨</p>
+                
+                <div class="map-container" id="mapContainer"></div>
+                
+                <div class="text-center mt-8">
+                    <div class="bg-purple-50 rounded-2xl p-4 inline-block">
+                        <p class="text-gray-700">🏆 مجموع النقاط: <span id="mapTotalScore">0</span> ⭐</p>
+                    </div>
+                </div>
+                
+                <!-- ===== لوحة المتصدرين (Leaderboard) ===== -->
+                <div class="leaderboard-container mt-8">
+                    <div class="leaderboard-title">🏅 أفضل 5 لاعبين 🏅</div>
+                    <div id="leaderboardList" class="leaderboard-list">
+                        <div class="text-center text-gray-500 py-4">لا توجد نتائج بعد. كن أول من يلعب!</div>
+                    </div>
+                </div>
+                <!-- ===================================== -->
+            </div>
+        </div>
+
+        <!-- Question Area -->
+        <div id="questionArea" class="hidden">
+            <div class="mb-4">
+                <button onclick="backToMap()" class="back-to-map">🗺️ ← العودة إلى الخريطة</button>
+            </div>
+            <div class="scenario-card p-8 max-w-5xl mx-auto">
+                <div id="currentLocationBadge" class="text-center mb-4">
+                    <span id="locationIcon" class="text-3xl">🏠</span>
+                    <span id="locationName" class="text-xl font-bold text-purple-700 mr-2"></span>
+                    <span id="locationProgress" class="text-sm text-gray-500 mr-2"></span>
+                </div>
+                <div id="questionContent" class="fade-in"></div>
+                <div id="answersContainer" class="answers-grid"></div>
+                <div class="text-center">
+                    <button id="helpButton" class="help-btn" onclick="showHelpVideo()">
+                        🆘 صعبة؟ شاهد فيديو وسنساعدك!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
+            <div class="scenario-card p-8 max-w-2xl w-full fade-in">
+                <div id="feedbackCharacter" class="character mx-auto mb-6"><div class="text-6xl">😊</div></div>
+                <div id="feedbackContent"></div>
+                <button id="continueBtn" class="answer-box mt-6 w-full text-xl py-3">➡️ التالي</button>
+            </div>
+        </div>
+
+        <!-- Video Modal -->
+        <div id="videoModal" class="hidden video-modal">
+            <div class="video-container">
+                <div class="bg-green-600 p-4 text-white flex justify-between items-center">
+                    <h3 class="text-xl font-bold">🕌 تعلم</h3>
+                    <button onclick="closeVideoModal(false)" class="text-2xl hover:bg-white/20 rounded-full w-8 h-8">✕</button>
+                </div>
+                <iframe id="videoFrame" class="video-frame" src="" allowfullscreen></iframe>
+                <div class="p-4 bg-gray-50 text-center">
+                    <div id="watchStatus" class="mb-3 text-amber-600 font-bold">⏳ يجب مشاهدة الفيديو حتى النهاية أولاً...</div>
+                    <button id="confirmWatchBtn" class="watch-btn-disabled px-6 py-2 rounded-full font-bold transition" disabled>✅ انتظر انتهاء الفيديو...</button>
+                    <div class="progress-timer mt-2" id="videoProgressMsg"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Complete Screen -->
+        <div id="gameComplete" class="hidden text-center">
+            <div class="scenario-card p-8 max-w-3xl mx-auto fade-in">
+                <div class="character mx-auto mb-6"><div class="text-6xl">🏆</div></div>
+                <h2 class="text-4xl font-bold text-purple-700 mb-4">!تهانينا يا بطل 🎉</h2>
+                <p class="text-xl text-gray-700 mb-4">لقد أكملت جميع المناطق بنجاح!</p>
+                <div class="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 mb-8">
+                    <div class="text-6xl font-bold text-yellow-600 mb-4">🏆</div>
+                    <p class="text-2xl text-gray-700 mb-4">لقد حصلت على <span id="finalTotalScore" class="text-3xl font-bold text-purple-600">0</span> نقطة!</p>
+                    <div id="finalLevel" class="level-badge mt-2"></div>
+                </div>
+                <div class="flex flex-wrap gap-4 justify-center">
+                    <button onclick="restartGame()" class="answer-box text-xl font-bold px-8 py-4">🔄 العب مرة أخرى</button>
+                    <button onclick="showCertificate()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold px-8 py-4 rounded-full text-xl transition hover:scale-105">🎓 احصل على شهادتك</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Certificate Screen -->
+        <div id="certificateScreen" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-3xl p-8 max-w-2xl w-full text-center" style="background: linear-gradient(135deg, #fff8e7, #fff); border: 10px double #FFD700;">
+                <div class="text-6xl mb-3">🎓</div>
+                <h2 class="text-3xl font-bold text-purple-700 mb-2">شهادة تقدير</h2>
+                <p class="text-gray-500 mb-6">~ ~ ~</p>
+                <p class="text-lg text-gray-700 mb-2">نشهد بأن</p>
+                <h3 id="certificateName" class="text-3xl font-bold text-orange-600 mb-4">البطل الصغير</h3>
+                <p class="text-lg text-gray-700 mb-6">قد أكمل بنجاح لعبة <strong>"الصديق الصغير"</strong></p>
+                <div class="bg-yellow-50 rounded-xl p-4 mb-6">
+                    <div class="text-5xl mb-2" id="certificateStars">⭐⭐⭐</div>
+                    <p class="text-gray-700">النتيجة: <span id="certificateScore" class="font-bold text-purple-600">0</span> نقطة</p>
+                </div>
+                <div class="flex gap-4 justify-center mt-6">
+                    <button onclick="printCertificate()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-full font-bold transition">🖨️ طباعة</button>
+                    <button onclick="closeCertificate()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-full font-bold transition">✖️ إغلاق</button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
